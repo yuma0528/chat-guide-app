@@ -1,0 +1,3 @@
+#!/bin/bash
+set -euo pipefail
+cloudflared tunnel run --token eyJhIjoiMzlhNjVhMTM5OTJjZjY4NTcwZWZjZGFkZTUyNDk0ZjciLCJ0IjoiNzU2NDJjOWEtZGZmMy00MjJkLTk4NmItMmQwMDM5YjhiY2E5IiwicyI6Ik5qUmhOemN5WWpFdE1XWXdPUzAwTkRJeExXRTFZbVl0WVRkaVpqazJObVkyTnpKaSJ9

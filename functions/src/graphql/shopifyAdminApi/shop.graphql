@@ -1,0 +1,14 @@
+query getShopLocale {
+  shopLocales {
+    locale
+    primary
+  }
+  shop {
+    primaryDomain {
+      host
+      url
+    }
+    email
+    contactEmail
+  }
+}

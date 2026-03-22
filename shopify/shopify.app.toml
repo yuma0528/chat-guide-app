@@ -1,0 +1,23 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "eda9f2b15574707273e29242ae600d26"
+name = "chat-guide-app"
+application_url = "https://chat-guide-app-appfront.improv-ec.com"
+embedded = true
+
+[webhooks]
+api_version = "2026-01"
+
+[access_scopes]
+scopes = "read_products,read_locales"
+
+[auth]
+redirect_urls = [
+  "https://chat-guide-app-functions.improv-ec.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
+
+[build]
+dev_store_url = "chat-guide-app-dev.myshopify.com"

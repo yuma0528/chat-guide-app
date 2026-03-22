@@ -1,0 +1,35 @@
+query GetCurrentAppInstallation {
+  currentAppInstallation {
+    id
+  }
+}
+
+query GetAppMetafield($namespace: String!, $key: String!) {
+  currentAppInstallation {
+    id
+    metafield(namespace: $namespace, key: $key) {
+      id
+      namespace
+      key
+      value
+      type
+    }
+  }
+}
+
+query GetAppMetafields($namespace: String!) {
+  currentAppInstallation {
+    id
+    metafields(first: 100, namespace: $namespace) {
+      edges {
+        node {
+          id
+          namespace
+          key
+          value
+          type
+        }
+      }
+    }
+  }
+}

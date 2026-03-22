@@ -1,0 +1,71 @@
+query getRegisteredWebhooks {
+  webhookSubscriptions(first: 20) {
+    edges {
+      node {
+        id
+        topic
+        endpoint {
+          __typename
+          ... on WebhookHttpEndpoint {
+            callbackUrl
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation subscribeAppUninstall($webhookSubscription: WebhookSubscriptionInput!) {
+  webhookSubscriptionCreate(
+    topic: APP_UNINSTALLED
+    webhookSubscription: $webhookSubscription
+  ) {
+    webhookSubscription {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+
+mutation subscribeAppSubscriptionsUpdate($webhookSubscription: WebhookSubscriptionInput!) {
+  webhookSubscriptionCreate(
+    topic: APP_SUBSCRIPTIONS_UPDATE
+    webhookSubscription: $webhookSubscription
+  ) {
+    webhookSubscription {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+
+mutation webhookSubscriptionCreate(
+  $topic: WebhookSubscriptionTopic!
+  $webhookSubscription: WebhookSubscriptionInput!
+) {
+  webhookSubscriptionCreate(
+    topic: $topic
+    webhookSubscription: $webhookSubscription
+  ) {
+    webhookSubscription {
+      id
+      topic
+      endpoint {
+        __typename
+        ... on WebhookHttpEndpoint {
+          callbackUrl
+        }
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

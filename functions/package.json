@@ -1,0 +1,51 @@
+{
+  "name": "functions",
+  "scripts": {
+    "build": "tsc",
+    "build:staging": "dotenv -e .env.staging -- tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions,firestore,pubsub",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "codegen": "graphql-codegen --config codegen.yml",
+    "deploy": "firebase deploy --only functions",
+    "prisma:deploy": "prisma migrate deploy",
+    "deploy:staging": "firebase deploy --project staging",
+    "deploy:production": "firebase deploy --project production",
+    "deploy:functions:staging": "firebase deploy --only functions --project staging",
+    "deploy:functions:production": "firebase deploy --only functions --project production",
+    "logs": "firebase functions:log",
+    "gcp-build": "npx prisma generate"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@google-cloud/pubsub": "^4.11.0",
+    "@graphql-codegen/near-operation-file-preset": "^3.0.0",
+    "@graphql-codegen/typescript-graphql-request": "^6.2.0",
+    "@prisma/client": "^6.5.0",
+    "@shopify/shopify-api": "^11.11.1",
+    "@trpc/client": "11.0.1",
+    "@trpc/server": "11.0.1",
+    "cookie-parser": "^1.4.7",
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.0.1",
+    "graphql": "^16.10.0",
+    "graphql-request": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "shopify-token": "^4.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.5",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/node": "^22.13.14",
+    "firebase-functions-test": "^3.1.0",
+    "prisma": "^6.5.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.2"
+  },
+  "private": true
+}

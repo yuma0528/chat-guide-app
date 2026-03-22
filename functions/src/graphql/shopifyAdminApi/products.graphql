@@ -1,0 +1,19 @@
+query GetProductsByIds($ids: [ID!]!) {
+  nodes(ids: $ids) {
+    ... on Product {
+      id
+      title
+      handle
+      featuredImage {
+        url
+      }
+      variants(first: 1) {
+        edges {
+          node {
+            price
+          }
+        }
+      }
+    }
+  }
+}

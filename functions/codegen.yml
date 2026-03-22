@@ -1,0 +1,55 @@
+overwrite: true
+generates:
+  ./src/type/shopifyAdminApi.ts:
+    schema:
+      - https://shopify.dev/admin-graphql-direct-proxy/2025-04
+    plugins:
+      - typescript
+    config:
+      defaultScalarType: "unknown"
+      scalars:
+        Boolean: boolean
+        Date: string
+        DateTime: string
+        Decimal: string
+        Float: number
+        FormattedString: string
+        HTML: string
+        ID: string
+        Int: number
+        JSON: unknown
+        Money: string
+        StorefrontID: string
+        String: string
+        UnsignedInt64: string
+        URL: string
+        UtcOffset: string
+  ./src/graphql/shopifyAdminApi/:
+    schema:
+      - https://shopify.dev/admin-graphql-direct-proxy/2025-04
+    documents: ./src/graphql/shopifyAdminApi/**/*.graphql
+    preset: near-operation-file
+    presetConfig:
+      baseTypesPath: ../../type/shopifyAdminApi.ts
+    plugins:
+      - typescript-operations
+      - typescript-graphql-request
+    config:
+      defaultScalarType: "unknown"
+      scalars:
+        Boolean: boolean
+        Date: string
+        DateTime: string
+        Decimal: string
+        Float: number
+        FormattedString: string
+        HTML: string
+        ID: string
+        Int: number
+        JSON: unknown
+        Money: string
+        StorefrontID: string
+        String: string
+        UnsignedInt64: string
+        URL: string
+        UtcOffset: string

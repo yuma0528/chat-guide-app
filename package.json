@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "dev": "concurrently -k -n docker,tunnel,frontend,tsc,emulator -c blue,magenta,green,yellow,cyan \"npm run dev:docker\" \"npm run dev:tunnel\" \"npm run dev:frontend\" \"npm run dev:functions\" \"npm run dev:emulator\"",
+    "dev:docker": "docker compose up",
+    "dev:tunnel": "npx dotenv -c -- ./tunnel.sh",
+    "dev:frontend": "if [ -d appfront-embedded ]; then cd appfront-embedded && npm run dev; else cd appfront && npm run dev; fi",
+    "dev:functions": "cd functions && npm run build:watch",
+    "dev:emulator": "sleep 5 && firebase emulators:start --only functions",
+    "serve": "firebase emulators:start --only functions,firestore,pubsub"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "dotenv-cli": "^8.0.0",
+    "firebase-tools": "^13.0.2"
+  }
+}
