@@ -17,3 +17,27 @@ query GetProductsByIds($ids: [ID!]!) {
     }
   }
 }
+
+query GetRecentProducts($first: Int!) {
+  products(first: $first, sortKey: CREATED_AT, reverse: true) {
+    edges {
+      node {
+        id
+        title
+        handle
+        featuredImage {
+          url
+        }
+        variants(first: 10) {
+          edges {
+            node {
+              id
+              title
+              price
+            }
+          }
+        }
+      }
+    }
+  }
+}

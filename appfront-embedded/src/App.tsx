@@ -10,6 +10,8 @@ import HomePage from "./pages/HomePage";
 import ScenarioListPage from "./pages/ScenarioListPage";
 import ScenarioEditorPage from "./pages/ScenarioEditorPage";
 import SettingsPage from "./pages/WidgetSettingsPage";
+import LpScenarioListPage from "./pages/LpScenarioListPage";
+import LpScenarioEditorPage from "./pages/LpScenarioEditorPage";
 
 function App() {
   const [queryClient] = useState(() => new QueryClient());
@@ -60,6 +62,7 @@ function App() {
             <ui-nav-menu>
               <a href="/" rel="home">ホーム</a>
               <a href="/scenarios">シナリオ一覧</a>
+              <a href="/lp-scenarios">LP購入シナリオ</a>
               <a href="/settings">設定</a>
             </ui-nav-menu>
             <Routes>
@@ -68,6 +71,11 @@ function App() {
               <Route
                 path="/scenarios/:id"
                 element={<ScenarioEditorPage />}
+              />
+              <Route path="/lp-scenarios" element={<LpScenarioListPage />} />
+              <Route
+                path="/lp-scenarios/:id"
+                element={<LpScenarioEditorPage />}
               />
               <Route path="/settings" element={<SettingsPage />} />
             </Routes>

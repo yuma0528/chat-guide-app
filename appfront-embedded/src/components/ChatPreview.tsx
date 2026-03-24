@@ -37,6 +37,10 @@ export default function ChatPreview({
   const [pendingNodes, setPendingNodes] = useState<ScenarioNode[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [, setFaqViewedCount] = useState(0);
+  const [historyStack, setHistoryStack] = useState<
+    Array<{ messages: ChatMessage[]; pendingNodes: ScenarioNode[]; faqViewedCount: number }>
+  >([]);
+  const faqViewedCountRef = useRef(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -143,6 +147,7 @@ export default function ChatPreview({
           { id: node.id, type: "faq", faqNode: node },
         ]);
         setFaqViewedCount(0);
+        faqViewedCountRef.current = 0;
         setPendingNodes(remaining);
         setIsProcessing(false);
       }, 800);
@@ -152,9 +157,29 @@ export default function ChatPreview({
     }
   }, [pendingNodes, isProcessing]);
 
+  const saveState = useCallback(() => {
+    setHistoryStack((prev) => [
+      ...prev,
+      { messages: [...messages], pendingNodes: [...pendingNodes], faqViewedCount: faqViewedCountRef.current },
+    ]);
+  }, [messages, pendingNodes]);
+
+  const goBack = useCallback(() => {
+    setHistoryStack((prev) => {
+      if (prev.length === 0) return prev;
+      const newStack = [...prev];
+      const last = newStack.pop()!;
+      setMessages(last.messages);
+      setPendingNodes(last.pendingNodes);
+      faqViewedCountRef.current = last.faqViewedCount;
+      return newStack;
+    });
+  }, []);
+
   // 選択肢クリック
   const handleChoiceClick = useCallback(
     (choiceId: string, choiceLabel: string) => {
+      saveState();
       // ユーザーの選択を表示
       setMessages((prev) => [
         ...prev.filter((m) => m.type !== "choices"),
@@ -167,12 +192,13 @@ export default function ChatPreview({
         .sort((a, b) => a.sort_order - b.sort_order);
       setPendingNodes(childNodes);
     },
-    [scenario]
+    [scenario, saveState]
   );
 
   // アフターアクションクリック
   const handleAfterAction = useCallback(
     (targetNodeId: string, label: string) => {
+      saveState();
       setMessages((prev) => [
         ...prev,
         { id: `user_action_${Date.now()}`, type: "user", text: label },
@@ -196,12 +222,13 @@ export default function ChatPreview({
         setPendingNodes(siblings.slice(targetIndex));
       }
     },
-    [scenario]
+    [scenario, saveState]
   );
 
   // FAQ質問クリック
   const handleFaqClick = useCallback(
     (question: string, answer: string) => {
+      saveState();
       setMessages((prev) => [
         ...prev,
         { id: `user_faq_${Date.now()}`, type: "user", text: question },
@@ -211,16 +238,19 @@ export default function ChatPreview({
           ...prev,
           { id: `bot_faq_${Date.now()}`, type: "bot", text: answer },
         ]);
-        setFaqViewedCount((c) => c + 1);
+        setFaqViewedCount((c) => {
+          faqViewedCountRef.current = c + 1;
+          return c + 1;
+        });
       }, 500);
     },
-    []
+    [saveState]
   );
-
 
   // リスタート
   const handleRestart = useCallback(() => {
     setMessages([]);
+    setHistoryStack([]);
     const rootNodes = scenario.nodes
       .filter((n) => n.parent_choice_id === null)
       .sort((a, b) => a.sort_order - b.sort_order);
@@ -260,10 +290,11 @@ export default function ChatPreview({
                 background: "rgba(255,255,255,0.2)",
                 border: "none",
                 color: "white",
-                padding: "4px 8px",
+                padding: "4px 10px",
                 borderRadius: 4,
                 cursor: "pointer",
                 fontSize: 12,
+                transition: "background 0.2s",
               }}
             >
               最初から
@@ -564,6 +595,53 @@ export default function ChatPreview({
               </div>
             ))}
             <div ref={chatEndRef} />
+          </div>
+
+          {/* フッター */}
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              padding: "8px 12px",
+              background: "white",
+              borderTop: "1px solid #e1e3e5",
+              flexShrink: 0,
+            }}
+          >
+            <button
+              onClick={goBack}
+              disabled={historyStack.length === 0}
+              style={{
+                flex: 1,
+                background: "#f6f6f7",
+                border: "1px solid #e1e3e5",
+                padding: "8px 12px",
+                borderRadius: 8,
+                cursor: historyStack.length === 0 ? "not-allowed" : "pointer",
+                fontSize: 12,
+                color: "#333",
+                opacity: historyStack.length === 0 ? 0.4 : 1,
+                transition: "all 0.2s",
+              }}
+            >
+              ← ひとつ前にもどる
+            </button>
+            <button
+              onClick={handleRestart}
+              style={{
+                flex: 1,
+                background: "#f6f6f7",
+                border: "1px solid #e1e3e5",
+                padding: "8px 12px",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontSize: 12,
+                color: "#333",
+                transition: "all 0.2s",
+              }}
+            >
+              最初にもどる
+            </button>
           </div>
         </div>
       </Modal.Section>

@@ -63,9 +63,9 @@
   padding: 10px 16px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  white-space: nowrap;
   font-size: 13px;
   max-width: 220px;
+  width: max-content;
   white-space: normal;
   animation: cg-fade-in 0.3s ease;
 }
@@ -292,6 +292,8 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  min-width: 0;
+  flex-shrink: 0;
   padding: 0 8px 8px;
   scroll-snap-type: x mandatory;
 }

@@ -1,0 +1,84 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-firebase:
+    name: Deploy to Firebase Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: ./appfront-embedded
+        run: npm ci
+
+      - name: Install functions dependencies
+        working-directory: ./functions
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ./appfront-embedded
+        run: npm run build:production
+
+      - name: Prisma generate
+        working-directory: ./functions
+        run: npx prisma generate
+
+      - name: Build functions
+        working-directory: ./functions
+        run: npm run build
+
+      - name: Deploy Migration
+        run: |
+          echo DIRECT_URL="postgresql://neondb_owner:npg_TO4IuWhCx2Ji@ep-odd-rice-a19i5qwr.ap-southeast-1.aws.neon.tech/neondb?sslmode=require" >> ./functions/.env.chat-guide-app-prod
+          npm run --prefix functions prisma:deploy
+
+      - name: Deploy Firebase Functions and Hosting
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only functions,hosting:production --project chat-guide-app-prod --force
+        env:
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
+
+  deploy-shopify-app:
+    name: Deploy Shopify App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install shopify app dependencies
+        working-directory: ./shopify
+        run: npm install
+
+      - name: Install Shopify CLI
+        run: npm install -g @shopify/cli@latest
+
+      - name: Deploy Shopify App
+        env:
+          SHOPIFY_CLI_PARTNERS_TOKEN: ${{ secrets.SHOPIFY_CLI_PARTNERS_TOKEN }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          SHOPIFY_API_KEY: eda9f2b15574707273e29242ae600d26
+        run: cd shopify && shopify app deploy -f --source-control-url "$COMMIT_URL"

@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Page,
   Layout,
@@ -9,7 +10,6 @@ import {
   Badge,
   EmptyState,
   Modal,
-  TextField,
   BlockStack,
   InlineStack,
   Spinner,
@@ -17,19 +17,77 @@ import {
 } from "@shopify/polaris";
 import { trpc } from "../lib/trpc";
 
+interface ScenarioTemplate {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  /** scenarios.ts の getTemplateNodes に渡すテンプレートキー（空文字なら空シナリオ） */
+  templateKey: string;
+}
+
+const TEMPLATES: ScenarioTemplate[] = [
+  {
+    id: "blank",
+    name: "白紙から作成",
+    description: "空のシナリオ。自由にノードを組み立てて独自のフローを構築できます。",
+    icon: "📄",
+    templateKey: "",
+  },
+  {
+    id: "gift_guide",
+    name: "ギフトガイド",
+    description: "贈る相手・予算・ジャンル・シーンで絞り込み、最適なギフトを提案する3階層の対話フロー。",
+    icon: "🎁",
+    templateKey: "gift_guide",
+  },
+  {
+    id: "faq",
+    name: "よくある質問（FAQ）",
+    description: "配送・返品・支払い・商品・アカウントの5カテゴリ、各3〜5問の詳細なFAQを収録。",
+    icon: "💬",
+    templateKey: "faq",
+  },
+  {
+    id: "product_guide",
+    name: "商品おすすめナビ",
+    description: "カテゴリ・ランキング・新着・セールの4つの入り口から商品ページへ誘導するナビゲーション。",
+    icon: "🛍️",
+    templateKey: "product_guide",
+  },
+  {
+    id: "first_visitor",
+    name: "初めてのお客様向けガイド",
+    description: "ブランド紹介・おすすめ商品・初回限定クーポン案内・FAQ付きのウェルカムシナリオ。",
+    icon: "🌸",
+    templateKey: "first_visitor",
+  },
+  {
+    id: "size_consultation",
+    name: "サイズ相談ナビ",
+    description: "トップス・ボトムス・シューズ・アクセサリー別のサイズ選びアドバイス。体型別おすすめ付き。",
+    icon: "📏",
+    templateKey: "size_consultation",
+  },
+];
+
 export default function ScenarioListPage() {
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newDescription, setNewDescription] = useState("");
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [creatingTemplateId, setCreatingTemplateId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const utils = trpc.useUtils();
   const { data, isLoading } = trpc.scenarios.list.useQuery();
+  const { data: storeProducts } = trpc.scenarios.fetchProducts.useQuery(
+    { count: 3 },
+    { enabled: showTemplateModal }
+  );
   const createMutation = trpc.scenarios.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (scenario) => {
       utils.scenarios.list.invalidate();
-      setShowCreateModal(false);
-      setNewName("");
-      setNewDescription("");
+      setShowTemplateModal(false);
+      setCreatingTemplateId(null);
+      navigate(`/scenarios/${scenario.id}`);
     },
   });
   const deleteMutation = trpc.scenarios.delete.useMutation({
@@ -45,13 +103,18 @@ export default function ScenarioListPage() {
     onSuccess: () => utils.scenarios.list.invalidate(),
   });
 
-  const handleCreate = useCallback(() => {
-    if (!newName.trim()) return;
-    createMutation.mutate({
-      name: newName,
-      description: newDescription,
-    });
-  }, [newName, newDescription, createMutation]);
+  const handleCreateFromTemplate = useCallback(
+    (template: ScenarioTemplate) => {
+      setCreatingTemplateId(template.id);
+      createMutation.mutate({
+        name: template.templateKey ? template.name : "新しいシナリオ",
+        description: template.description,
+        template: template.templateKey || undefined,
+        products: storeProducts || undefined,
+      });
+    },
+    [createMutation, storeProducts]
+  );
 
   const handleToggleStatus = useCallback(
     (id: string, currentStatus: string) => {
@@ -102,7 +165,7 @@ export default function ScenarioListPage() {
       backAction={{ url: "/" }}
       primaryAction={{
         content: "新規作成",
-        onAction: () => setShowCreateModal(true),
+        onAction: () => setShowTemplateModal(true),
       }}
     >
       <Layout>
@@ -112,13 +175,13 @@ export default function ScenarioListPage() {
               <EmptyState
                 heading="シナリオがありません"
                 action={{
-                  content: "シナリオを作成",
-                  onAction: () => setShowCreateModal(true),
+                  content: "テンプレートから作成",
+                  onAction: () => setShowTemplateModal(true),
                 }}
                 image=""
               >
                 <p>
-                  トップページからテンプレートを選んで作成するか、空のシナリオを新規作成しましょう。
+                  テンプレートを選んでシナリオを作成しましょう。チャットボットの対話フローを構築できます。
                 </p>
               </EmptyState>
             </Card>
@@ -215,41 +278,71 @@ export default function ScenarioListPage() {
       </Layout>
 
       <Modal
-        open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        title="新しいシナリオを作成"
-        primaryAction={{
-          content: "作成",
-          onAction: handleCreate,
-          loading: createMutation.isPending,
-          disabled: !newName.trim(),
+        open={showTemplateModal}
+        onClose={() => {
+          setShowTemplateModal(false);
+          setCreatingTemplateId(null);
         }}
-        secondaryActions={[
-          { content: "キャンセル", onAction: () => setShowCreateModal(false) },
-        ]}
+        title="テンプレートを選択"
+        size="large"
       >
         <Modal.Section>
-          <BlockStack gap="400">
-            {createMutation.isError && (
+          {createMutation.isError && (
+            <div style={{ marginBottom: 16 }}>
               <Banner tone="critical">
                 作成に失敗しました: {createMutation.error.message}
               </Banner>
-            )}
-            <TextField
-              label="シナリオ名"
-              value={newName}
-              onChange={setNewName}
-              autoComplete="off"
-              placeholder="例: ギフト選びサポート"
-            />
-            <TextField
-              label="説明（任意）"
-              value={newDescription}
-              onChange={setNewDescription}
-              autoComplete="off"
-              multiline={3}
-              placeholder="例: ギフト選びに迷ったお客様を商品まで案内"
-            />
+            </div>
+          )}
+          <BlockStack gap="300">
+            {TEMPLATES.map((template) => {
+              const isCreating = creatingTemplateId === template.id && createMutation.isPending;
+              return (
+                <div
+                  key={template.id}
+                  style={{
+                    border: "1px solid #e1e3e5",
+                    borderRadius: 12,
+                    padding: 16,
+                    cursor: isCreating ? "default" : "pointer",
+                    transition: "border-color 0.15s, box-shadow 0.15s",
+                    opacity: creatingTemplateId && !isCreating ? 0.5 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isCreating) {
+                      e.currentTarget.style.borderColor = "#2c6ecb";
+                      e.currentTarget.style.boxShadow = "0 0 0 1px #2c6ecb";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#e1e3e5";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                  onClick={() => {
+                    if (!creatingTemplateId) {
+                      handleCreateFromTemplate(template);
+                    }
+                  }}
+                >
+                  <InlineStack gap="400" blockAlign="start">
+                    <div style={{ fontSize: 32, lineHeight: 1 }}>
+                      {template.icon}
+                    </div>
+                    <BlockStack gap="100">
+                      <InlineStack gap="200" blockAlign="center">
+                        <Text as="h3" variant="headingMd">
+                          {template.name}
+                        </Text>
+                        {isCreating && <Spinner size="small" />}
+                      </InlineStack>
+                      <Text as="p" variant="bodySm" tone="subdued">
+                        {template.description}
+                      </Text>
+                    </BlockStack>
+                  </InlineStack>
+                </div>
+              );
+            })}
           </BlockStack>
         </Modal.Section>
       </Modal>

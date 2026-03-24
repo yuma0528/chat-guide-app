@@ -1,0 +1,664 @@
+/* ===== LP Purchase Guide Widget ===== */
+
+#lp-guide-root {
+  --lp-primary: #4A90D9;
+  --lp-font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--lp-font-size);
+  line-height: 1.5;
+  position: fixed;
+  z-index: 99998;
+  bottom: 20px;
+  right: 20px;
+}
+
+#lp-guide-root.lp-left {
+  right: auto;
+  left: 20px;
+}
+
+#lp-guide-root.lp-font-small { --lp-font-size: 12px; }
+#lp-guide-root.lp-font-large { --lp-font-size: 16px; }
+
+/* フローティングボタン */
+.lp-fab {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--lp-primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.lp-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.lp-fab svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+}
+
+.lp-fab-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ウェルカムバブル */
+.lp-welcome {
+  position: absolute;
+  bottom: 70px;
+  right: 0;
+  background: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  font-size: 13px;
+  max-width: 220px;
+  white-space: normal;
+  animation: lp-fade-in 0.3s ease;
+}
+
+.lp-left .lp-welcome {
+  right: auto;
+  left: 0;
+}
+
+.lp-welcome::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  right: 20px;
+  width: 12px;
+  height: 12px;
+  background: white;
+  transform: rotate(45deg);
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+}
+
+.lp-left .lp-welcome::after {
+  right: auto;
+  left: 20px;
+}
+
+/* チャットウィンドウ */
+.lp-window {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 380px;
+  max-height: 520px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: lp-slide-up 0.3s ease;
+}
+
+.lp-left .lp-window {
+  right: auto;
+  left: 20px;
+}
+
+/* ヘッダー */
+.lp-header {
+  background: var(--lp-primary);
+  color: white;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.lp-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lp-header-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.lp-header-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.lp-header-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.lp-header-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* メッセージエリア */
+.lp-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: #f6f6f7;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ボットメッセージ */
+.lp-msg-bot {
+  display: flex;
+  gap: 8px;
+  max-width: 85%;
+}
+
+.lp-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--lp-primary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.lp-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lp-avatar svg {
+  width: 18px;
+  height: 18px;
+  fill: white;
+}
+
+.lp-bubble-bot {
+  background: white;
+  padding: 10px 14px;
+  border-radius: 0 12px 12px 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.lp-bubble-bot img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-top: 8px;
+  display: block;
+}
+
+/* ユーザーメッセージ */
+.lp-msg-user {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lp-bubble-user {
+  background: var(--lp-primary);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 12px 0 12px 12px;
+  max-width: 85%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* タイピング */
+.lp-typing {
+  display: flex;
+  gap: 8px;
+}
+
+.lp-typing-dots {
+  background: white;
+  padding: 10px 18px;
+  border-radius: 0 12px 12px 12px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.lp-typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #999;
+  animation: lp-bounce 1.4s infinite;
+}
+
+.lp-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.lp-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* ===== LP固有スタイル ===== */
+
+/* 割引コードカード */
+.lp-discount-card {
+  background: white;
+  border: 2px dashed var(--lp-primary);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 0 8px;
+  text-align: center;
+}
+
+.lp-discount-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--lp-primary);
+  margin-bottom: 8px;
+}
+
+.lp-discount-code-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.lp-discount-code {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #333;
+  background: #f0f0f0;
+  padding: 6px 16px;
+  border-radius: 6px;
+}
+
+.lp-copy-btn {
+  background: var(--lp-primary);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: opacity 0.2s;
+}
+
+.lp-copy-btn:hover {
+  opacity: 0.85;
+}
+
+.lp-discount-desc {
+  font-size: 12px;
+  color: #666;
+}
+
+/* レビューカード */
+.lp-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.lp-reviews-heading {
+  font-weight: 600;
+  font-size: 14px;
+  padding-left: 40px;
+  margin-bottom: 4px;
+}
+
+.lp-review-card {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.lp-review-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.lp-review-name {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.lp-review-stars {
+  color: #f5a623;
+  font-size: 14px;
+}
+
+.lp-review-comment {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* 商品選択カード */
+.lp-product-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.lp-product-select-heading {
+  font-weight: 600;
+  font-size: 14px;
+  padding-left: 40px;
+  margin-bottom: 4px;
+}
+
+.lp-product-select-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.lp-product-select-inner {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+}
+
+.lp-product-select-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.lp-product-select-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.lp-product-select-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.lp-product-select-price {
+  color: var(--lp-primary);
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.lp-product-select-card.lp-product-tappable {
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.lp-product-select-card.lp-product-tappable:hover {
+  border-color: var(--lp-primary);
+}
+
+.lp-product-select-card.lp-product-selected {
+  border-color: var(--lp-primary);
+}
+
+.lp-product-confirm-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 20px;
+  background: var(--lp-primary);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 4px;
+}
+
+.lp-product-confirm-btn:hover {
+  opacity: 0.9;
+}
+
+.lp-product-confirm-btn.lp-btn-disabled {
+  background: #ccc;
+  cursor: default;
+}
+
+.lp-qty-zero {
+  color: #999;
+}
+
+.lp-qty-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lp-qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.2s;
+}
+
+.lp-qty-btn:hover {
+  background: #f0f0f0;
+}
+
+.lp-qty-val {
+  width: 32px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* フォーム入力 */
+.lp-form-wrap {
+  padding: 0 8px;
+}
+
+.lp-form-group {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.lp-form-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.lp-form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: inherit;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.lp-form-input:focus {
+  border-color: var(--lp-primary);
+}
+
+.lp-form-submit {
+  width: 100%;
+  padding: 6px 12px;
+  margin-top: 8px;
+  background: var(--lp-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.lp-form-submit:hover {
+  opacity: 0.9;
+}
+
+.lp-form-error {
+  color: #d72c0d;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* 確認カード */
+.lp-confirm-card {
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 0 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.lp-confirm-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+.lp-confirm-row:last-child {
+  border-bottom: none;
+}
+
+.lp-confirm-label {
+  color: #666;
+}
+
+.lp-confirm-value {
+  font-weight: 600;
+}
+
+.lp-checkout-btn {
+  display: block;
+  width: calc(100% - 16px);
+  margin: 0 8px;
+  padding: 14px;
+  background: var(--lp-primary);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.lp-checkout-btn:hover {
+  opacity: 0.9;
+}
+
+/* フッター */
+.lp-footer {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: white;
+  border-top: 1px solid #e1e3e5;
+  flex-shrink: 0;
+}
+
+.lp-footer-btn {
+  flex: 1;
+  background: #f6f6f7;
+  border: 1px solid #e1e3e5;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  color: #333;
+  transition: all 0.2s;
+}
+
+.lp-footer-btn:hover {
+  background: #eee;
+  border-color: #ccc;
+}
+
+/* アニメーション */
+@keyframes lp-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lp-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes lp-bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
+}
+
+/* モバイル対応 */
+@media (max-width: 480px) {
+  .lp-window {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-height: 85vh;
+    border-radius: 16px 16px 0 0;
+    animation: lp-mobile-slide 0.3s ease;
+  }
+
+  .lp-left .lp-window {
+    left: 0;
+  }
+
+  .lp-welcome {
+    display: none;
+  }
+}
+
+@keyframes lp-mobile-slide {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}

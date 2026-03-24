@@ -1,5 +1,15 @@
 {
   "projects": {
-    "default": "chat-guide-app"
-  }
+    "default": "chat-guide-app-prod"
+  },
+  "targets": {
+    "chat-guide-app-prod": {
+      "hosting": {
+        "production": [
+          "chat-guide-app-prod"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

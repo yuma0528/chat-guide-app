@@ -1,0 +1,80 @@
+{% assign lp_data = app.metafields.chat_guide.lp_storefront_data.value %}
+
+{% if lp_data %}
+<script type="application/json" id="lp-guide-data">
+  {{ lp_data | json }}
+</script>
+<script type="application/json" id="lp-guide-config">
+{
+  "scenario_id": {{ block.settings.scenario_id | json }},
+  "primary_color": {{ block.settings.primary_color | json }},
+  "bot_name": {{ block.settings.bot_name | json }},
+  "bot_icon_url": {% if block.settings.bot_icon %}{{ block.settings.bot_icon | image_url: width: 80 | json }}{% else %}null{% endif %},
+  "font_size": {{ block.settings.font_size | json }},
+  "position": {{ block.settings.position | json }},
+  "welcome_message": {{ block.settings.welcome_message | json }}
+}
+</script>
+<div id="lp-guide-root"></div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "LP Purchase Guide",
+  "target": "body",
+  "javascript": "lp-widget.js",
+  "stylesheet": "lp-widget.css",
+  "settings": [
+    {
+      "type": "text",
+      "id": "scenario_id",
+      "label": "LPシナリオID",
+      "info": "管理画面のLPシナリオ一覧からIDをコピーしてください"
+    },
+    {
+      "type": "text",
+      "id": "bot_name",
+      "label": "ボット名",
+      "default": "ショップアシスタント"
+    },
+    {
+      "type": "textarea",
+      "id": "welcome_message",
+      "label": "ウェルカムメッセージ",
+      "default": "お得な情報をお届けします！"
+    },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "テーマカラー",
+      "default": "#4A90D9"
+    },
+    {
+      "type": "image_picker",
+      "id": "bot_icon",
+      "label": "ボットアイコン"
+    },
+    {
+      "type": "select",
+      "id": "font_size",
+      "label": "フォントサイズ",
+      "options": [
+        { "value": "small", "label": "小" },
+        { "value": "medium", "label": "中" },
+        { "value": "large", "label": "大" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "label": "ウィジェット位置",
+      "options": [
+        { "value": "bottom_right", "label": "右下" },
+        { "value": "bottom_left", "label": "左下" }
+      ],
+      "default": "bottom_right"
+    }
+  ]
+}
+{% endschema %}
