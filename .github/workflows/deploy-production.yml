@@ -35,6 +35,13 @@ jobs:
         working-directory: ./appfront-embedded
         run: npm run build:production
 
+      - name: Rename .env.production to .env
+        working-directory: ./functions
+        run: |
+          mv .env.production .env
+          echo "SHOPIFY_API_SECRET=${{ secrets.SHOPIFY_API_SECRET }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
       - name: Prisma generate
         working-directory: ./functions
         run: npx prisma generate
@@ -44,9 +51,7 @@ jobs:
         run: npm run build
 
       - name: Deploy Migration
-        run: |
-          echo DIRECT_URL="postgresql://neondb_owner:npg_TO4IuWhCx2Ji@ep-odd-rice-a19i5qwr.ap-southeast-1.aws.neon.tech/neondb?sslmode=require" >> ./functions/.env.chat-guide-app-prod
-          npm run --prefix functions prisma:deploy
+        run: npm run --prefix functions prisma:deploy
 
       - name: Deploy Firebase Functions and Hosting
         uses: w9jds/firebase-action@master

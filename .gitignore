@@ -10,7 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-lib
+functions/lib
 *.local
 public
 
@@ -35,6 +35,8 @@ ui-debug.log
 .env
 .env.*
 !.env.example
+!functions/.env.production
+!appfront-embedded/.env.production
 
 # Firebase service account keys
 *-firebase-adminsdk-*.json
