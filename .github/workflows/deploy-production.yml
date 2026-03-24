@@ -86,4 +86,4 @@ jobs:
           SHOPIFY_CLI_PARTNERS_TOKEN: ${{ secrets.SHOPIFY_CLI_PARTNERS_TOKEN }}
           COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
           SHOPIFY_API_KEY: eda9f2b15574707273e29242ae600d26
-        run: cd shopify && shopify app deploy -f --source-control-url "$COMMIT_URL"
+        run: cd shopify && shopify app deploy --config=production -f --source-control-url "$COMMIT_URL"
